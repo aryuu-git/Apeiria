@@ -10,6 +10,7 @@ dev = [
     "mypy>=1.18,<2",
     "pytest>=8.4,<9",
     "ruff>=0.13,<0.14",
+    "apeiria-webui",
 ]
 
 [tool.uv]
@@ -19,17 +20,20 @@ package = false
 members = [
     "packages/apeiria-core",
     "packages/anime-party",
+    "packages/apeiria-webui",
 ]
 
 [tool.uv.sources]
 apeiria-core = { workspace = true }
 anime-party = { workspace = true }
+apeiria-webui = { workspace = true }
 
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"
 pythonpath = [
     "packages/apeiria-core/src",
     "packages/anime-party/src",
+    "packages/apeiria-webui/src",
     "packages/astrbot-plugin-apeiria",
 ]
 testpaths = ["tests"]
@@ -40,6 +44,7 @@ target-version = "py312"
 src = [
     "packages/apeiria-core/src",
     "packages/anime-party/src",
+    "packages/apeiria-webui/src",
     "packages/astrbot-plugin-apeiria",
     "tests",
 ]
@@ -53,5 +58,6 @@ strict = true
 mypy_path = [
     "packages/apeiria-core/src",
     "packages/anime-party/src",
+    "packages/apeiria-webui/src",
 ]
-packages = ["apeiria_core", "anime_party"]
+packages = ["apeiria_core", "anime_party", "apeiria_webui"]
