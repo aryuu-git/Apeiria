@@ -23,8 +23,10 @@
 | 群接入安全默认 | Apeiria 插件白名单为空时拒绝所有群；OneBot 与 Dashboard 仅绑定回环地址 |
 | 静默控制 | 仅配置的管理员可按群静默/恢复；阶段 3 使用进程内状态，阶段 4 持久化 |
 | SQLite 状态 | schema v1 与迁移已实现；游戏进度和群静默使用同一命名空间 KV 存储 |
-| 当前阶段 | 阶段 4 进行中；SQLite 代码完成，真实跨重启验收、Bangumi API/缓存和 AI 尚未完成 |
-| 下一步建议 | 先完成活动题目跨 AstrBot 重启验收，再实现 Bangumi API 缓存 |
+| Bangumi API | 默认 `https://api.bgm.tv`（本网络直连不可达，经系统代理可达）；自定义 UA；SQLite KV 缓存 TTL 7 天、间隔 1 秒；API 不可达时安静降级到过期缓存或 `None` |
+| AI 陪伴 | 火山引擎 Ark OpenAI 兼容端点（`/api/coding/v3`），`deepseek-v4-flash`；允许发送有限短期上下文（默认 20 条、单条 500 字）；上下文本地 SQLite 保留 30 天；预算暂不设限，试用观察用量；首版仅被点名/引用/明确询问时回应，不逐句插话 |
+| 当前阶段 | 阶段 4 进行中；SQLite、Bangumi 客户端/缓存、AI 陪伴模块完成；待办：真实跨重启验收、AI 部署与真实群验收、题包生成接线 |
+| 下一步建议 | 先完成活动题目跨 AstrBot 重启验收，再部署 AI 陪伴版本并做真实群验收 |
 | NapCat 固定版本 | `v4.18.19`；官方 Shell 包 SHA-256 为 `C5B7423D...ED170ACF`，真实 OneBot 链路已验证 |
 
 ## 尚未决定
