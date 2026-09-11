@@ -1,0 +1,13 @@
+[project]
+name = "anime-party"
+version = "0.1.0"
+description = "Deterministic anime party games for Apeiria"
+requires-python = ">=3.12,<3.13"
+dependencies = ["apeiria-core"]
+
+[tool.uv.sources]
+apeiria-core = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,9 @@
+name: astrbot_plugin_apeiria
+display_name: Apeiria
+description: Apeiria QQ group companion and deterministic anime party games
+version: 0.1.0
+author: aryuu-git
+repo: https://github.com/aryuu-git/Apeiria
+astrbot_version: ">=4.28.0,<5"
+support_platforms:
+  - aiocqhttp

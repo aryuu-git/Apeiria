@@ -2,6 +2,29 @@ version = 1
 revision = 3
 requires-python = "==3.12.*"
 
+[manifest]
+members = [
+    "anime-party",
+    "apeiria-core",
+    "apeiria-workspace",
+]
+
+[[package]]
+name = "anime-party"
+version = "0.1.0"
+source = { editable = "packages/anime-party" }
+dependencies = [
+    { name = "apeiria-core" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "apeiria-core", editable = "packages/apeiria-core" }]
+
+[[package]]
+name = "apeiria-core"
+version = "0.1.0"
+source = { editable = "packages/apeiria-core" }
+
 [[package]]
 name = "apeiria-workspace"
 version = "0.1.0"

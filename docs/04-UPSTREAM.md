@@ -19,8 +19,19 @@
 - 官方仓库：<https://github.com/AstrBotDevs/AstrBot>。
 - 官方许可证文件声明 AstrBot 使用 GNU AGPL v3 或更高版本：<https://github.com/AstrBotDevs/AstrBot/blob/master/LICENSE>。
 - 评估时最新正式发行版为 `v4.28.0`（2026-09-08，提交 `a412146`）：<https://github.com/AstrBotDevs/AstrBot/releases/tag/v4.28.0>。
-- `v4.28.0` 的发行说明警告配置结构发生优化，升级后再降级可能重置部分配置。因此当前只把它记为候选基线；必须在隔离环境完成最小验证后，才将其确认为固定版本。
-- 官方源码部署文档要求 Python `>=3.12`，并推荐 `uv`：<https://docs.astrbot.app/deploy/astrbot/cli.html>。这只作为后续环境决策输入，本阶段不安装。
+- `v4.28.0` 的发行说明警告配置结构发生优化，升级后再降级可能重置部分配置；回滚时必须连同配置备份恢复。
+- 官方源码部署文档要求 Python `>=3.12`，并推荐 `uv`：<https://docs.astrbot.app/deploy/astrbot/cli.html>。
+
+### 隔离验证结果（2026-09-11）
+
+- 固定版本：`v4.28.0`，完整提交 `a412146401426c0cdff8bbefb8627a03da519da8`。
+- 环境：Python `3.12.14`，AstrBot 独立虚拟环境位于被 Git 忽略的 `runtime/AstrBot/.venv/`。
+- 上游选定测试：160 项通过，仅有 1 项上游弃用警告。
+- Apeiria 的两个领域包均能构建为 wheel；动画题包包含在 `anime-party` wheel 中。
+- 插件元数据和 `_conf_schema.json` 可被 AstrBot 解析；真实启动时成功加载 `astrbot_plugin_apeiria 0.1.0`。
+- 插件通过公开事件接口调用领域核心；假事件覆盖已处理与忽略消息，根项目共 13 项测试通过。
+- WebUI 验证时只监听 `127.0.0.1:6185`，服务随后正常关停；没有连接 QQ 或配置 AI。
+- 未修改 AstrBot 核心，因此当前不建立 fork。
 
 ### 公开扩展能力
 
@@ -60,11 +71,7 @@
 
 ### 固定版本前的验证门
 
-1. 在 Owner 授权的隔离环境验证 `v4.28.0` 能加载最小本地插件。
-2. 用假事件或最小测试验证群 UMO、发送者、@/引用、重复事件标识和 OneBot 消息字段。
-3. 验证插件配置保存、插件数据目录和重载行为。
-4. 记录发行包或提交、校验信息、Python 版本、回滚方式和已知配置降级风险。
-5. 验证通过后才把 `v4.28.0` 从“候选基线”改为“固定版本”。
+固定版本验证门已通过。真实 OneBot 字段、插件热重载和部署回滚仍在阶段 3 的 NapCat 测试链路中验证。
 
 ## NapCatQQ
 
@@ -78,6 +85,6 @@
 - 不同时纳入多个候选机器人框架。
 - 第三方许可证、NOTICE、版本和修改说明统一记录在 `third-party`。
 
-## 尚未执行
+## 当前边界
 
-当前没有克隆、fork 或安装任何上游项目。
+AstrBot 仅克隆并安装在被忽略的隔离运行目录；未 fork、未修改核心、未作为源码提交。

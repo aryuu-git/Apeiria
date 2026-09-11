@@ -15,11 +15,22 @@ dev = [
 [tool.uv]
 package = false
 
+[tool.uv.workspace]
+members = [
+    "packages/apeiria-core",
+    "packages/anime-party",
+]
+
+[tool.uv.sources]
+apeiria-core = { workspace = true }
+anime-party = { workspace = true }
+
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"
 pythonpath = [
     "packages/apeiria-core/src",
     "packages/anime-party/src",
+    "packages/astrbot-plugin-apeiria",
 ]
 testpaths = ["tests"]
 
@@ -29,6 +40,7 @@ target-version = "py312"
 src = [
     "packages/apeiria-core/src",
     "packages/anime-party/src",
+    "packages/astrbot-plugin-apeiria",
     "tests",
 ]
 
@@ -43,4 +55,3 @@ mypy_path = [
     "packages/anime-party/src",
 ]
 packages = ["apeiria_core", "anime_party"]
-

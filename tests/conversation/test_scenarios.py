@@ -3,13 +3,19 @@ from pathlib import Path
 from random import Random
 from typing import Any
 
-from anime_party import AnimePartyEngine, ChineseGamePresenter, ReplyKind, load_questions
+from anime_party import (
+    AnimePartyEngine,
+    ChineseGamePresenter,
+    ReplyKind,
+    default_questions_path,
+    load_questions,
+)
 from apeiria_core import IncomingMessage
 
 
 def test_documented_conversation_scenarios() -> None:
     raw: Any = json.loads(Path("persona/emoji-anime-scenarios.json").read_text(encoding="utf-8"))
-    catalog = load_questions(Path("packages/anime-party/data/questions.zh-CN.json"))
+    catalog = load_questions(default_questions_path())
     presenter = ChineseGamePresenter()
 
     for scenario in raw:

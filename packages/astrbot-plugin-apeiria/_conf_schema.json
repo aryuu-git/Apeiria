@@ -1,0 +1,17 @@
+{
+  "enabled": {
+    "description": "Enable Apeiria message handling",
+    "type": "bool",
+    "default": true
+  },
+  "recent_question_limit": {
+    "description": "Number of recent questions excluded from selection",
+    "type": "int",
+    "default": 8
+  },
+  "handled_message_limit": {
+    "description": "Maximum number of message IDs retained for deduplication",
+    "type": "int",
+    "default": 4096
+  }
+}

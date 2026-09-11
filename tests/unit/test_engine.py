@@ -1,4 +1,3 @@
-from pathlib import Path
 from random import Random
 
 from anime_party import (
@@ -8,6 +7,7 @@ from anime_party import (
     Question,
     QuestionCatalog,
     ReplyKind,
+    default_questions_path,
     load_questions,
 )
 from apeiria_core import IncomingMessage
@@ -98,8 +98,7 @@ def test_pause_clears_current_question() -> None:
 
 
 def test_shipped_catalog_contains_30_distinct_questions() -> None:
-    path = Path("packages/anime-party/data/questions.zh-CN.json")
-    catalog = load_questions(path)
+    catalog = load_questions(default_questions_path())
 
     assert catalog.size == 30
     assert len({question.subject_id for question in catalog.questions}) == 30

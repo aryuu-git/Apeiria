@@ -9,6 +9,16 @@ from typing import Any
 from .models import Difficulty, Question
 
 
+def default_questions_path() -> Path:
+    """Return the bundled development catalog path.
+
+    Returns:
+        Path to the canonical Simplified Chinese question catalog.
+    """
+
+    return Path(__file__).resolve().parent / "data" / "questions.zh-CN.json"
+
+
 class QuestionCatalog:
     def __init__(self, questions: Iterable[Question]) -> None:
         self._questions = tuple(questions)
