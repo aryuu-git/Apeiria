@@ -4,7 +4,7 @@ from collections.abc import Collection
 from typing import Protocol
 
 from anime_party import AnimePartyEngine, ChineseGamePresenter, ReplyKind
-from apeiria_core import IncomingMessage
+from apeiria_core import GroupControlPolicy, IncomingMessage
 
 
 class AstrEventLike(Protocol):
@@ -33,12 +33,14 @@ class ApeiriaEventAdapter:
         presenter: ChineseGamePresenter,
         *,
         allowed_group_ids: Collection[str] | None = None,
+        group_control: GroupControlPolicy | None = None,
     ) -> None:
         self._engine = engine
         self._presenter = presenter
         self._allowed_group_ids = (
             None if allowed_group_ids is None else frozenset(allowed_group_ids)
         )
+        self._group_control = group_control or GroupControlPolicy(())
 
     def handle(self, event: AstrEventLike) -> tuple[str, ...]:
         """Handle one event without exposing it to the domain.
@@ -56,15 +58,20 @@ class ApeiriaEventAdapter:
         ):
             return ()
 
-        message_id = str(getattr(event.message_obj, "message_id", ""))
-        reply = self._engine.handle(
-            IncomingMessage(
-                message_id=message_id,
-                session_id=event.unified_msg_origin,
-                sender_id=event.get_sender_id(),
-                text=event.message_str,
-            )
+        incoming = IncomingMessage(
+            message_id=str(getattr(event.message_obj, "message_id", "")),
+            session_id=event.unified_msg_origin,
+            sender_id=event.get_sender_id(),
+            text=event.message_str,
         )
+        control = self._group_control.evaluate(incoming)
+        if not control.allow:
+            if control.response is not None:
+                event.stop_event()
+                return (control.response,)
+            return ()
+
+        reply = self._engine.handle(incoming)
         rendered = self._presenter.render(reply)
         if reply.kind is not ReplyKind.IGNORED:
             event.stop_event()

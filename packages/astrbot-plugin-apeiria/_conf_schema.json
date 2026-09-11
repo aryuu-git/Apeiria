@@ -9,6 +9,11 @@
     "type": "list",
     "default": []
   },
+  "admin_ids": {
+    "description": "QQ user IDs allowed to silence or resume Apeiria",
+    "type": "list",
+    "default": []
+  },
   "recent_question_limit": {
     "description": "Number of recent questions excluded from selection",
     "type": "int",

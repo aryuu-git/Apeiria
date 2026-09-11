@@ -9,6 +9,7 @@ from anime_party import (
     default_questions_path,
     load_questions,
 )
+from apeiria_core import GroupControlPolicy
 
 from .adapter import ApeiriaEventAdapter
 
@@ -36,10 +37,16 @@ class ApeiriaPlugin(star.Star):
             for group_id in settings.get("allowed_group_ids", [])
             if str(group_id).strip()
         }
+        admin_ids = {
+            str(admin_id).strip()
+            for admin_id in settings.get("admin_ids", [])
+            if str(admin_id).strip()
+        }
         self._adapter = ApeiriaEventAdapter(
             engine,
             ChineseGamePresenter(),
             allowed_group_ids=allowed_group_ids,
+            group_control=GroupControlPolicy(admin_ids),
         )
 
     @filter.event_message_type(filter.EventMessageType.ALL, priority=10)
