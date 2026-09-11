@@ -23,6 +23,7 @@
 - 决定优先采用官方固定发行版作为外部运行时，暂不 fork；`v4.28.0` 仅为待验证候选。
 - 确认目标远程仓库为 `https://github.com/aryuu-git/Apeiria`；初始化前仓库公开且为空。
 - 初始化本地 Git，以 `main` 为初始分支，并将目标仓库配置为 `origin`。
+- 下载并校验 Bangumi Archive `dump-2026-09-08.210336Z.zip`；原始归档位于被 Git 忽略的 `data/bangumi/archive/`，来源记录见 `third-party/bangumi-archive.md`。
 
 ## 明确未做
 
@@ -31,7 +32,7 @@
 - 没有生成业务代码、数据库或真实配置。
 - 没有连接 QQ、Bangumi 或 AI API。
 - 没有运行测试或启动服务。
-- 没有下载 Bangumi Archive。
+- 没有解压、导入或在业务代码中读取 Bangumi Archive。
 
 ## 建议的下一项工作
 
@@ -39,8 +40,9 @@
 
 1. 决定 Python 具体版本和依赖管理工具；当前优先候选为 Python 3.12 + `uv`。
 2. 建立 `apeiria-core`、`anime-party` 的最小包与测试配置。
-3. 用固定题包实现不依赖 AstrBot 的 Emoji 游戏状态机和消息幂等测试。
-4. AstrBot `v4.28.0` 的隔离加载验证需另行获得 Owner 授权，验证通过后才固定版本并进入适配阶段。
+3. 为 `subject.jsonlines` 建立流式筛选器，只选择非 NSFW 动画候选，不全量解压归档。
+4. 从筛选结果生成受控的小型固定题包，再实现 Emoji 游戏状态机和消息幂等测试。
+5. AstrBot `v4.28.0` 的隔离加载验证需另行获得 Owner 授权，验证通过后才固定版本并进入适配阶段。
 
 如果 Owner 直接指定其他任务，以 Owner 当前指令为准。
 
