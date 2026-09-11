@@ -33,6 +33,14 @@ class QuestionCatalog:
     def questions(self) -> tuple[Question, ...]:
         return self._questions
 
+    def get(self, subject_id: int) -> Question | None:
+        """Return one question by Bangumi subject ID."""
+
+        return next(
+            (question for question in self._questions if question.subject_id == subject_id),
+            None,
+        )
+
     def choose(
         self,
         *,

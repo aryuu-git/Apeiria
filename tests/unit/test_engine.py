@@ -1,3 +1,4 @@
+from pathlib import Path
 from random import Random
 
 from anime_party import (
@@ -10,7 +11,7 @@ from anime_party import (
     default_questions_path,
     load_questions,
 )
-from apeiria_core import IncomingMessage
+from apeiria_core import IncomingMessage, SQLiteStateStore
 
 PRESENTER = ChineseGamePresenter()
 
@@ -145,3 +146,22 @@ def test_sessions_are_isolated() -> None:
 
     assert group_one.kind is ReplyKind.QUESTION
     assert group_two_answer.kind is ReplyKind.IGNORED
+
+
+def test_active_game_survives_engine_restart(tmp_path: Path) -> None:
+    store = SQLiteStateStore(tmp_path / "state.db")
+    first = AnimePartyEngine(make_catalog(), random=Random(1), state_store=store)
+    started = first.handle(make_message("1", "来一个"))
+    first_hint = first.handle(make_message("2", "提示"))
+
+    restarted = AnimePartyEngine(
+        make_catalog(),
+        random=Random(2),
+        state_store=SQLiteStateStore(store.path),
+    )
+    second_hint = restarted.handle(make_message("3", "提示"))
+
+    assert started.question is not None
+    assert first_hint.hint_level == 1
+    assert second_hint.question == started.question
+    assert second_hint.hint_level == 2

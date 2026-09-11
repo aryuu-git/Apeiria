@@ -1,10 +1,11 @@
 """Deterministic state machine for Emoji anime guessing."""
 
+import json
 from dataclasses import dataclass, field
 from enum import StrEnum
 from random import Random
 
-from apeiria_core import IncomingMessage
+from apeiria_core import IncomingMessage, StateStore
 
 from .catalog import QuestionCatalog
 from .models import Difficulty, Question
@@ -64,6 +65,7 @@ class AnimePartyEngine:
         random: Random | None = None,
         recent_limit: int = 8,
         handled_message_limit: int = 4096,
+        state_store: StateStore | None = None,
     ) -> None:
         if recent_limit < 0:
             raise ValueError("recent_limit must be non-negative")
@@ -73,6 +75,7 @@ class AnimePartyEngine:
         self._random = random or Random()
         self._recent_limit = recent_limit
         self._handled_message_limit = handled_message_limit
+        self._state_store = state_store
         self._sessions: dict[str, GameSession] = {}
         self._handled_messages: dict[tuple[str, str], None] = {}
 
@@ -85,27 +88,90 @@ class AnimePartyEngine:
             oldest = next(iter(self._handled_messages))
             del self._handled_messages[oldest]
 
-        session = self._sessions.setdefault(message.session_id, GameSession())
+        session = self._get_session(message.session_id)
         text = message.text.strip()
 
         if text in self.PAUSE_COMMANDS:
             session.status = GameStatus.PAUSED
             session.current = None
             session.hint_level = 0
-            return GameReply(kind=ReplyKind.PAUSED)
+            return self._persist(message.session_id, session, GameReply(kind=ReplyKind.PAUSED))
         if text in self.EASY_COMMANDS:
             session.difficulty = Difficulty.EASY
-            return self._start_question(session, changed_difficulty=Difficulty.EASY)
+            return self._persist(
+                message.session_id,
+                session,
+                self._start_question(session, changed_difficulty=Difficulty.EASY),
+            )
         if text in self.HARD_COMMANDS:
             session.difficulty = Difficulty.HARD
-            return self._start_question(session, changed_difficulty=Difficulty.HARD)
+            return self._persist(
+                message.session_id,
+                session,
+                self._start_question(session, changed_difficulty=Difficulty.HARD),
+            )
         if text in self.START_COMMANDS or text in self.NEXT_COMMANDS:
-            return self._start_question(session)
+            return self._persist(message.session_id, session, self._start_question(session))
         if text in self.HINT_COMMANDS:
-            return self._hint(session)
+            return self._persist(message.session_id, session, self._hint(session))
         if text in self.REVEAL_COMMANDS:
-            return self._reveal(session)
-        return self._answer(session, text)
+            return self._persist(message.session_id, session, self._reveal(session))
+        reply = self._answer(session, text)
+        if reply.kind is ReplyKind.CORRECT_ANSWER:
+            return self._persist(message.session_id, session, reply)
+        return reply
+
+    def _get_session(self, session_id: str) -> GameSession:
+        if session_id in self._sessions:
+            return self._sessions[session_id]
+        session = GameSession()
+        if self._state_store is not None:
+            raw = self._state_store.get("anime-party", session_id)
+            if raw is not None:
+                try:
+                    payload = json.loads(raw)
+                    current_id = payload.get("current_subject_id")
+                    current = self._catalog.get(int(current_id)) if current_id is not None else None
+                    status = GameStatus(payload["status"])
+                    if status is GameStatus.ACTIVE and current is None:
+                        status = GameStatus.IDLE
+                    session = GameSession(
+                        status=status,
+                        difficulty=Difficulty(payload["difficulty"]),
+                        current=current,
+                        hint_level=int(payload["hint_level"]),
+                        recent_subject_ids=[int(item) for item in payload["recent_subject_ids"]],
+                    )
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                    session = GameSession()
+        self._sessions[session_id] = session
+        return session
+
+    def _persist(
+        self,
+        session_id: str,
+        session: GameSession,
+        reply: GameReply,
+    ) -> GameReply:
+        if self._state_store is not None:
+            self._state_store.set(
+                "anime-party",
+                session_id,
+                json.dumps(
+                    {
+                        "status": session.status.value,
+                        "difficulty": session.difficulty.value,
+                        "current_subject_id": (
+                            None if session.current is None else session.current.subject_id
+                        ),
+                        "hint_level": session.hint_level,
+                        "recent_subject_ids": session.recent_subject_ids,
+                    },
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                ),
+            )
+        return reply
 
     def _start_question(
         self,

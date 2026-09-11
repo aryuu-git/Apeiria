@@ -1,4 +1,6 @@
-from apeiria_core import GroupControlPolicy, IncomingMessage
+from pathlib import Path
+
+from apeiria_core import GroupControlPolicy, IncomingMessage, SQLiteStateStore
 
 
 def message(
@@ -49,3 +51,16 @@ def test_control_messages_are_deduplicated_with_bounded_memory() -> None:
     assert first.response is not None
     assert duplicate.allow is False and duplicate.response is None
     assert replay_after_eviction.response is not None
+
+
+def test_silence_survives_policy_restart(tmp_path: Path) -> None:
+    store = SQLiteStateStore(tmp_path / "state.db")
+    first = GroupControlPolicy({"admin"}, state_store=store)
+    first.evaluate(message("1", "admin", "艾佩理雅静默"))
+
+    restarted = GroupControlPolicy({"admin"}, state_store=SQLiteStateStore(store.path))
+    hidden = restarted.evaluate(message("2", "member", "来一个"))
+    resumed = restarted.evaluate(message("3", "admin", "艾佩理雅恢复"))
+
+    assert hidden.allow is False and hidden.response is None
+    assert resumed.response == "我回来了。"

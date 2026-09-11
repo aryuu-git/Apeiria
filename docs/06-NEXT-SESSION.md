@@ -47,23 +47,27 @@
 - NapCat `v4.18.19` 已登录专用测试 QQ，并通过带随机 Token 的本机反向 WebSocket 接入 AstrBot。
 - 真实测试群已验证出题、提示、带空格答案判定、管理员静默、静默期间不回复、恢复后出题。
 - NapCat WebUI、AstrBot Dashboard 和 OneBot 均仅监听回环地址；双方文件日志均关闭。阶段 3 验收完成。
+- 阶段 4 已实现 SQLite schema v1、迁移与通用状态存储，并接入游戏进度和群静默。
+- SQLite、引擎重建和静默策略重建测试通过；根项目当前共 22 项测试通过。
+- 持久化版本已在真实 AstrBot 中启动并完成一次出题/正确答案，但活动题目跨进程恢复的真实验收尚未执行。
 
 ## 明确未做
 
 - 没有 fork 或修改 AstrBot 核心。
 - 没有把 NapCat、QQ 标识、Token 或真实部署配置提交到 Git。
-- 没有连接 QQ、Bangumi 或 AI API。
-- 没有长期运行服务；仅短暂启动隔离 AstrBot 验证插件加载后正常关停。
+- 没有连接 Bangumi API 或 AI API。
+- 当前 AstrBot 已正常关闭；NapCat Shell 仍可能保持运行和专用 QQ 登录态，但文件日志关闭。
 - 没有解压、导入或在业务代码中读取 Bangumi Archive。
 
 ## 建议的下一项工作
 
 阶段 3 已完成。下一步进入阶段 4：
 
-1. 建立 SQLite schema、迁移和状态存储接口，持久化游戏/静默必要状态。
-2. 建立 Bangumi API 客户端、缓存和安静降级，不读取完整 Archive 作为运行数据库。
-3. 与 Owner 确认 AI 服务商、模型、预算和群聊隐私范围，再索取对应 API Key。
-4. 接入结构化题包生成和有限上下文陪伴回复，并建立行为回归测试。
+1. 先运行根项目检查，并核对 SQLite 未提交代码是否与本交接一致。
+2. 部署当前包到隔离 AstrBot，在测试群开始题目并获取第一层提示；重启 AstrBot 后再发“提示”，应继续为第二层。
+3. 建立 Bangumi API 客户端、缓存和安静降级，不读取完整 Archive 作为运行数据库。
+4. 与 Owner 确认 AI 服务商、模型、预算和群聊隐私范围，再索取对应 API Key。
+5. 接入结构化题包生成和有限上下文陪伴回复，并建立行为回归测试。
 
 如果 Owner 直接指定其他任务，以 Owner 当前指令为准。
 
@@ -80,8 +84,8 @@
 继续 D:\workspace\projects\Apeiria 项目。先读取项目 AGENTS.md、docs/00-CONTEXT.md 和 docs/06-NEXT-SESSION.md，核对实际状态，然后向我概括当前阶段和建议的下一项工作。暂时不要安装、运行、克隆上游或大量修改。
 ```
 
-如果准备进入阶段 3，可改为：
+如果继续阶段 4，可改为：
 
 ```text
-继续 D:\workspace\projects\Apeiria 项目。按项目交接规则读取最少文档，先建立不含凭据的 NapCat/OneBot Windows 部署模板与检查脚本；不要连接真实 QQ 或外部 AI。
+继续 D:\workspace\projects\Apeiria 项目。按项目交接规则读取最少文档，核对提交状态和 22 项测试；先完成 SQLite 活动题目跨 AstrBot 重启验收，再实现 Bangumi API 缓存。需要 AI Key 时再向我索取。
 ```

@@ -4,6 +4,7 @@ from collections.abc import Collection
 from dataclasses import dataclass
 
 from .messages import IncomingMessage
+from .state_store import StateStore
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,13 +21,20 @@ class GroupControlPolicy:
     SILENCE_COMMANDS = frozenset({"艾佩理雅静默", "机器人静默"})
     RESUME_COMMANDS = frozenset({"艾佩理雅恢复", "机器人恢复"})
 
-    def __init__(self, admin_ids: Collection[str], *, handled_message_limit: int = 4096) -> None:
+    def __init__(
+        self,
+        admin_ids: Collection[str],
+        *,
+        handled_message_limit: int = 4096,
+        state_store: StateStore | None = None,
+    ) -> None:
         if handled_message_limit < 1:
             raise ValueError("handled_message_limit must be positive")
         self._admin_ids = frozenset(admin_ids)
         self._silent_sessions: set[str] = set()
         self._handled_message_limit = handled_message_limit
         self._handled_messages: dict[tuple[str, str], None] = {}
+        self._state_store = state_store
 
     def evaluate(self, message: IncomingMessage) -> ControlDecision:
         """Evaluate one normalized message before other domain handlers."""
@@ -46,12 +54,21 @@ class GroupControlPolicy:
             if not is_admin:
                 return ControlDecision(False, "只有管理员可以让我进入静默。")
             self._silent_sessions.add(message.session_id)
+            if self._state_store is not None:
+                self._state_store.set("group-silence", message.session_id, "1")
             return ControlDecision(False, "好的，我会保持安静。管理员说“艾佩理雅恢复”时我再回来。")
 
         if text in self.RESUME_COMMANDS:
             if not is_admin:
                 return ControlDecision(False, "只有管理员可以解除静默。")
             self._silent_sessions.discard(message.session_id)
+            if self._state_store is not None:
+                self._state_store.delete("group-silence", message.session_id)
             return ControlDecision(False, "我回来了。")
 
-        return ControlDecision(message.session_id not in self._silent_sessions)
+        is_silent = message.session_id in self._silent_sessions
+        if not is_silent and self._state_store is not None:
+            is_silent = self._state_store.get("group-silence", message.session_id) == "1"
+            if is_silent:
+                self._silent_sessions.add(message.session_id)
+        return ControlDecision(not is_silent)

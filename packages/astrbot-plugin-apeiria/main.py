@@ -1,7 +1,10 @@
 """AstrBot entry point for the Apeiria thin adapter."""
 
+from pathlib import Path
+
 from astrbot.api import star
 from astrbot.api.event import AstrMessageEvent, filter
+from astrbot.core.utils.astrbot_path import get_astrbot_data_path
 
 from anime_party import (
     AnimePartyEngine,
@@ -9,7 +12,7 @@ from anime_party import (
     default_questions_path,
     load_questions,
 )
-from apeiria_core import GroupControlPolicy
+from apeiria_core import GroupControlPolicy, SQLiteStateStore
 
 from .adapter import ApeiriaEventAdapter
 
@@ -27,10 +30,14 @@ class ApeiriaPlugin(star.Star):
         super().__init__(context, config)
         settings = config or {}
         self._enabled = bool(settings.get("enabled", True))
+        state_store = SQLiteStateStore(
+            Path(get_astrbot_data_path()) / "plugin_data" / self.name / "state.db"
+        )
         engine = AnimePartyEngine(
             load_questions(default_questions_path()),
             recent_limit=int(settings.get("recent_question_limit", 8)),
             handled_message_limit=int(settings.get("handled_message_limit", 4096)),
+            state_store=state_store,
         )
         allowed_group_ids = {
             str(group_id).strip()
@@ -49,6 +56,7 @@ class ApeiriaPlugin(star.Star):
             group_control=GroupControlPolicy(
                 admin_ids,
                 handled_message_limit=int(settings.get("handled_message_limit", 4096)),
+                state_store=state_store,
             ),
         )
 
