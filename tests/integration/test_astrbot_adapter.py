@@ -55,32 +55,45 @@ class FakeAstrEvent:
 
     def get_self_id(self) -> str:
         return BOT_SELF_ID
-
     def stop_event(self) -> None:
         self.stopped = True
 
 
 class FakeCompanion:
     def __init__(self) -> None:
-        self.observed: list[tuple[str, str, str]] = []
-        self.replies: list[tuple[str, str, str, bool]] = []
+        self.observed: list[tuple[str, str, str, str]] = []
+        self.replies: list[tuple[str, str, str, str, bool]] = []
         self.answer = "嗯，我在。"
 
-    def observe(self, session_id: str, sender_name: str, text: str) -> None:
-        self.observed.append((session_id, sender_name, text))
-
-    def wants_reply(self, text: str, *, mentioned: bool) -> bool:
-        return mentioned or "艾佩理雅" in text
-
-    def reply(
+    def observe(
         self,
         session_id: str,
+        sender_id: str,
+        sender_name: str,
+        text: str,
+    ) -> None:
+        self.observed.append((session_id, sender_id, sender_name, text))
+
+    def matches_name(self, text: str) -> bool:
+        return "艾佩理雅" in text
+
+    def wants_reply(self, text: str, *, mentioned: bool, sender_id: str) -> bool:
+        return (
+            mentioned
+            or "艾佩理雅" in text
+            or any(hint in text for hint in ("番", "动画", "游戏", "无聊"))
+        )
+
+    def decide(
+        self,
+        session_id: str,
+        sender_id: str,
         sender_name: str,
         text: str,
         *,
         mentioned: bool,
-    ) -> str | None:
-        self.replies.append((session_id, sender_name, text, mentioned))
+    ) -> str:
+        self.replies.append((session_id, sender_id, sender_name, text, mentioned))
         return self.answer
 
 
@@ -175,7 +188,7 @@ def test_adapter_offers_companion_for_mention() -> None:
     assert result.consumed is False
     assert event.stopped is False
     assert companion.observed == [
-        ("aiocqhttp:GroupMessage:123456", "阿明", "晚上好")
+        ("aiocqhttp:GroupMessage:123456", "10001", "阿明", "晚上好")
     ]
     assert adapter.handle(event).messages == ()  # duplicate delivery stays silent
     assert len(companion.observed) == 1
@@ -233,3 +246,76 @@ def test_adapter_declines_companion_during_silence() -> None:
 
     assert result.companion_eligible is False
     assert companion.observed == []
+
+
+def test_adapter_runs_game_expression_for_companion_action() -> None:
+    catalog = load_questions(default_questions_path())
+    adapter = ApeiriaEventAdapter(
+        AnimePartyEngine(catalog, random=Random(1)),
+        ChineseGamePresenter(),
+    )
+    event = FakeAstrEvent("message-5", "随便什么", nickname="阿明")
+
+    messages = adapter.run_game_expression(event, "来一个")
+
+    assert len(messages) == 1
+    assert messages[0].startswith("猜猜这部动画：")
+    assert event.stopped is False  # synthetic expression must not stop the real event
+
+
+class FakeSink:
+    def __init__(self) -> None:
+        self.events: list[tuple[str, str, dict]] = []
+
+    def append_event(self, kind: str, session_id: str, payload: dict) -> int:
+        self.events.append((kind, session_id, dict(payload)))
+        return len(self.events)
+
+
+def test_adapter_emits_lifecycle_events() -> None:
+    catalog = load_questions(default_questions_path())
+    sink = FakeSink()
+    companion = FakeCompanion()
+    adapter = ApeiriaEventAdapter(
+        AnimePartyEngine(catalog, random=Random(1)),
+        ChineseGamePresenter(),
+        allowed_group_ids={"123456"},
+        companion=companion,
+        event_sink=sink,
+    )
+    chat = FakeAstrEvent("2", "今晚看什么番", nickname="阿明")
+    game = FakeAstrEvent("3", "来一个")
+    duplicate = FakeAstrEvent("3", "来一个")
+
+    adapter.handle(chat)
+    adapter.handle(game)
+    adapter.handle(duplicate)
+
+    kinds = [kind for kind, _, _ in sink.events]
+    assert kinds == ["companion.gate", "game.reply", "message.skip"]
+    assert sink.events[0][2]["eligible"] is True
+    assert sink.events[1][2]["kind"] == "question"
+    assert sink.events[2][2]["reason"] == "duplicate"
+
+
+def test_adapter_hands_misses_to_presence() -> None:
+    catalog = load_questions(default_questions_path())
+    companion = FakeCompanion()
+    sink = FakeSink()
+    adapter = ApeiriaEventAdapter(
+        AnimePartyEngine(catalog, random=Random(1)),
+        ChineseGamePresenter(),
+        companion=companion,
+        event_sink=sink,
+    )
+    adapter.handle(FakeAstrEvent("1", "来一个"))
+    miss = FakeAstrEvent("2", "这是我的猜测吗", nickname="阿明")
+
+    result = adapter.handle(miss)
+
+    assert result.messages == ()  # no robo reply for a miss
+    assert result.consumed is False
+    assert result.companion_eligible is True
+    assert result.state is not None
+    assert result.state["wrong_attempts"] == 1
+    assert [kind for kind, _, _ in sink.events][-1] == "game.miss"

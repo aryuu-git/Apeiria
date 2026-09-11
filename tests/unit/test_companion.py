@@ -1,4 +1,4 @@
-"""Unit tests for the AI companion service and its transport."""
+"""Unit tests for the AI companion presence service and its transport."""
 
 import json
 import socket
@@ -9,15 +9,25 @@ from typing import Any
 
 import pytest
 
-from apeiria_core import CompanionService, LlmTransportError, SQLiteStateStore
+from apeiria_core import (
+    CompanionDecision,
+    CompanionService,
+    LlmTransportError,
+    SQLiteStateStore,
+)
+from apeiria_core.companion import parse_decision
 
 SYSTEM_PROMPT = "你是艾佩理雅。"
+
+
+def verdict(speak: bool = True, text: str = "好的呀。", action: str | None = None) -> str:
+    return json.dumps({"speak": speak, "text": text, "action": action}, ensure_ascii=False)
 
 
 class FakeTransport:
     def __init__(self) -> None:
         self.calls: list[tuple[str, list[dict[str, str]]]] = []
-        self.answer = "好的呀。"
+        self.answer = verdict()
         self.error: Exception | None = None
 
     def chat(self, model: str, messages: list[dict[str, str]]) -> str:
@@ -33,6 +43,9 @@ class FakeClock:
 
     def __call__(self) -> float:
         return self.now
+
+    def advance(self, seconds: float) -> None:
+        self.now += seconds
 
 
 def make_service(
@@ -51,69 +64,189 @@ def make_service(
     )
 
 
+def test_parse_decision_verdicts() -> None:
+    assert parse_decision(verdict()) == CompanionDecision(True, "好的呀。", None)
+    assert parse_decision(verdict(speak=False)) == CompanionDecision(False)
+    assert parse_decision(verdict(text="")) == CompanionDecision(False)
+    assert parse_decision(verdict(action="start_game", text="")) == CompanionDecision(
+        True, None, "start_game"
+    )
+    assert parse_decision(verdict(action="hack", text="随口说说")) == CompanionDecision(
+        True, "随口说说", None
+    )
+    assert parse_decision("```json\n" + verdict() + "\n```") == CompanionDecision(
+        True, "好的呀。", None
+    )
+    assert parse_decision("前置废话 " + verdict() + " 后置废话") == CompanionDecision(
+        True, "好的呀。", None
+    )
+    assert parse_decision("完全不是 JSON") == CompanionDecision(False)
+    assert parse_decision("{broken json") == CompanionDecision(False)
+    assert parse_decision('{"speak": true, "text": 42, "action": null}') == (
+        CompanionDecision(False)
+    )
+
+
 def test_wants_reply_gating(tmp_path) -> None:
     transport = FakeTransport()
-    service = make_service(transport, SQLiteStateStore(tmp_path / "state.db"), FakeClock())
+    service = make_service(
+        transport,
+        SQLiteStateStore(tmp_path / "state.db"),
+        FakeClock(),
+        owner_ids={"951505136"},
+    )
 
-    assert service.wants_reply("你好", mentioned=True)
-    assert service.wants_reply("艾佩理雅你好", mentioned=False)
-    assert service.wants_reply("APEIRIA 是谁", mentioned=False)
-    assert not service.wants_reply("今天天气不错", mentioned=False)
-    assert not service.wants_reply("", mentioned=False)
+    assert service.wants_reply("你好", mentioned=True, sender_id="10001")
+    assert service.wants_reply("艾佩理雅你好", mentioned=False, sender_id="10001")
+    assert service.wants_reply("今晚看什么番好", mentioned=False, sender_id="10001")
+    assert service.wants_reply("今天天气不错", mentioned=False, sender_id="951505136")
+    assert not service.wants_reply("今天天气不错", mentioned=False, sender_id="10001")
+    assert not service.wants_reply("", mentioned=False, sender_id="10001")
 
 
-def test_non_trigger_message_never_calls_transport(tmp_path) -> None:
+def test_ungated_message_never_calls_transport(tmp_path) -> None:
     store = SQLiteStateStore(tmp_path / "state.db")
     transport = FakeTransport()
     service = make_service(transport, store, FakeClock())
 
-    assert service.reply("s", "阿明", "随便聊聊", mentioned=False) is None
+    decision = service.decide("s", "10001", "阿明", "随便聊聊", mentioned=False)
 
+    assert decision.speak is False
     assert transport.calls == []
 
 
-def test_reply_builds_prompt_and_archives_answer(tmp_path) -> None:
+def test_decide_builds_prompt_and_archives_answer(tmp_path) -> None:
     store = SQLiteStateStore(tmp_path / "state.db")
     clock = FakeClock()
     transport = FakeTransport()
     service = make_service(transport, store, clock)
-    service.observe("s", "阿明", "早上好")
+    service.observe("s", "10001", "阿明", "早上好")
 
-    assert service.reply("s", "阿明", "艾佩理雅，晚上吃什么", mentioned=False) == "好的呀。"
+    decision = service.decide("s", "10001", "阿明", "艾佩理雅，晚上吃什么", mentioned=False)
 
+    assert decision == CompanionDecision(True, "好的呀。", None)
     model, messages = transport.calls[0]
     assert model == "deepseek-v4-flash"
     assert messages[0] == {"role": "system", "content": SYSTEM_PROMPT}
     assert messages[-1] == {"role": "user", "content": "阿明 说：艾佩理雅，晚上吃什么"}
+    assert {"role": "user", "content": "阿明 说：早上好"} in messages[1:-1]
 
-    assert service.reply("s", "阿明", "艾佩理雅，还有呢", mentioned=False) == "好的呀。"
+    service.decide("s", "10001", "阿明", "艾佩理雅，还有呢", mentioned=False)
     _, second = transport.calls[1]
-    assert {"role": "user", "content": "阿明 说：早上好"} in second
-    assert {"role": "assistant", "content": "好的呀。"} in second
+    assert {"role": "assistant", "content": "好的呀。"} in second[1:-1]
 
 
-def test_transport_failure_returns_none_quietly(tmp_path) -> None:
+def test_owner_message_marked_in_prompt(tmp_path) -> None:
+    store = SQLiteStateStore(tmp_path / "state.db")
+    transport = FakeTransport()
+    service = make_service(
+        transport,
+        store,
+        FakeClock(),
+        owner_ids={"951505136"},
+    )
+    service.observe("s", "951505136", "Owner", "在忙什么")
+
+    service.decide("s", "10001", "阿明", "艾佩理雅，聊聊", mentioned=False)
+
+    _, messages = transport.calls[0]
+    assert {"role": "user", "content": "Owner（Owner） 说：在忙什么"} in messages[1:-1]
+
+
+def test_model_silence_keeps_history_clean(tmp_path) -> None:
+    store = SQLiteStateStore(tmp_path / "state.db")
+    clock = FakeClock()
+    transport = FakeTransport()
+    transport.answer = verdict(speak=False)
+    service = make_service(transport, store, clock)
+
+    decision = service.decide("s", "10001", "阿明", "艾佩理雅？", mentioned=False)
+
+    assert decision.speak is False
+    transport.answer = verdict()
+    assert service.decide("s", "10001", "阿明", "艾佩理雅，还在吗", mentioned=False).speak
+    _, messages = transport.calls[1]
+    assert not any(message["role"] == "assistant" for message in messages[1:-1])
+
+
+def test_transport_failure_returns_silence(tmp_path) -> None:
     store = SQLiteStateStore(tmp_path / "state.db")
     clock = FakeClock()
     transport = FakeTransport()
     transport.error = LlmTransportError("boom")
     service = make_service(transport, store, clock)
 
-    assert service.reply("s", "阿明", "艾佩理雅？", mentioned=False) is None
+    decision = service.decide("s", "10001", "阿明", "艾佩理雅？", mentioned=False)
 
+    assert decision.speak is False
     transport.error = None
-    assert service.reply("s", "阿明", "艾佩理雅，还在吗", mentioned=False) == "好的呀。"
+    assert service.decide("s", "10001", "阿明", "艾佩理雅，还在吗", mentioned=False).speak
     _, messages = transport.calls[1]
     assert not any(message["role"] == "assistant" for message in messages[1:-1])
 
 
-def test_empty_answer_returns_none(tmp_path) -> None:
+def test_rate_limit_blocks_autonomous_spree(tmp_path) -> None:
+    store = SQLiteStateStore(tmp_path / "state.db")
+    clock = FakeClock()
+    transport = FakeTransport()
+    service = make_service(
+        transport,
+        store,
+        clock,
+        autonomous_rate_limit=2,
+        rate_window_seconds=600.0,
+    )
+
+    assert service.decide("s", "10001", "阿明", "好无聊啊", mentioned=False).speak
+    assert service.decide("s", "10001", "阿明", "看什么番好", mentioned=False).speak
+
+    transport.calls.clear()
+    decision = service.decide("s", "10001", "阿明", "来点新番推荐", mentioned=False)
+    assert decision.speak is False
+    assert transport.calls == []
+
+    clock.advance(601.0)
+    assert service.decide("s", "10001", "阿明", "来点新番推荐", mentioned=False).speak
+
+
+def test_mentions_bypass_rate_limit(tmp_path) -> None:
     store = SQLiteStateStore(tmp_path / "state.db")
     transport = FakeTransport()
-    transport.answer = "   "
-    service = make_service(transport, store, FakeClock())
+    service = make_service(
+        transport,
+        store,
+        FakeClock(),
+        autonomous_rate_limit=1,
+        rate_window_seconds=600.0,
+    )
 
-    assert service.reply("s", "阿明", "艾佩理雅？", mentioned=False) is None
+    assert service.decide("s", "10001", "阿明", "好无聊啊", mentioned=False).speak
+
+    for index in range(3):
+        assert service.decide(
+            "s", "10001", "阿明", f"艾佩理雅，第{index}次", mentioned=True
+        ).speak
+
+    assert len(transport.calls) == 4
+
+
+def test_owner_messages_bypass_rate_limit(tmp_path) -> None:
+    store = SQLiteStateStore(tmp_path / "state.db")
+    transport = FakeTransport()
+    service = make_service(
+        transport,
+        store,
+        FakeClock(),
+        owner_ids={"951505136"},
+        autonomous_rate_limit=1,
+        rate_window_seconds=600.0,
+    )
+
+    assert service.decide("s", "10001", "阿明", "好无聊啊", mentioned=False).speak
+
+    transport.calls.clear()
+    assert service.decide("s", "951505136", "Owner", "在忙什么", mentioned=False).speak
+    assert len(transport.calls) == 1
 
 
 def test_prunes_expired_history_from_prompt(tmp_path) -> None:
@@ -121,11 +254,11 @@ def test_prunes_expired_history_from_prompt(tmp_path) -> None:
     clock = FakeClock()
     transport = FakeTransport()
     service = make_service(transport, store, clock)
-    service.observe("s", "阿明", "一月的话题")
+    service.observe("s", "10001", "阿明", "一月的话题")
 
-    clock.now += 31 * 24 * 3600.0
-    service.observe("s", "阿明", "今天的话题")
-    service.reply("s", "阿明", "艾佩理雅，聊什么", mentioned=False)
+    clock.advance(31 * 24 * 3600.0)
+    service.observe("s", "10001", "阿明", "今天的话题")
+    service.decide("s", "10001", "阿明", "艾佩理雅，聊什么", mentioned=False)
 
     _, messages = transport.calls[0]
     user_contents = [m["content"] for m in messages if m["role"] == "user"]
@@ -138,9 +271,9 @@ def test_archive_limit_trims_history(tmp_path) -> None:
     transport = FakeTransport()
     service = make_service(transport, store, FakeClock(), archive_limit=2)
     for index in range(4):
-        service.observe("s", "阿明", f"消息{index}")
+        service.observe("s", "10001", "阿明", f"消息{index}")
 
-    service.reply("s", "阿明", "艾佩理雅？", mentioned=False)
+    service.decide("s", "10001", "阿明", "艾佩理雅？", mentioned=False)
 
     _, messages = transport.calls[0]
     user_contents = [m["content"] for m in messages[1:-1] if m["role"] == "user"]
@@ -151,9 +284,9 @@ def test_clips_long_messages(tmp_path) -> None:
     store = SQLiteStateStore(tmp_path / "state.db")
     transport = FakeTransport()
     service = make_service(transport, store, FakeClock(), max_message_chars=10)
-    service.observe("s", "阿明", "x" * 200)
+    service.observe("s", "10001", "阿明", "x" * 200)
 
-    service.reply("s", "阿明", "艾佩理雅，复述一下", mentioned=False)
+    service.decide("s", "10001", "阿明", "艾佩理雅，复述一下", mentioned=False)
 
     _, messages = transport.calls[0]
     assert messages[1] == {"role": "user", "content": "阿明 说：" + "x" * 10}

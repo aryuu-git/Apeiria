@@ -1,11 +1,24 @@
 """User-facing rendering kept outside the deterministic game state machine."""
 
+from random import Random
+
 from .engine import GameReply, ReplyKind
 from .models import Difficulty
+
+WRONG_ANSWER_LINES = (
+    "还不对。可以继续猜，或者说“提示”。",
+    "差一点！再想想，或说“提示”。",
+    "不是它哦。继续猜，或者要一个“提示”。",
+    "没猜中～换个思路试试，也可以“提示”。",
+    "不对哦。需要线索就说“提示”。",
+)
 
 
 class ChineseGamePresenter:
     """Render domain replies in concise Simplified Chinese."""
+
+    def __init__(self, random: Random | None = None) -> None:
+        self._random = random
 
     def render(self, reply: GameReply) -> tuple[str, ...]:
         question = reply.question
@@ -36,7 +49,12 @@ class ChineseGamePresenter:
                 assert question is not None
                 return (f"答案是《{question.title}》。{question.explanation}",)
             case ReplyKind.WRONG_ANSWER:
-                return ("还不对。可以继续猜，或者说“提示”。",)
+                line = (
+                    self._random.choice(WRONG_ANSWER_LINES)
+                    if self._random is not None
+                    else WRONG_ANSWER_LINES[0]
+                )
+                return (line,)
             case ReplyKind.CORRECT_ANSWER:
                 assert question is not None
                 return (f"答对了，是《{question.title}》！{question.explanation}",)

@@ -1,7 +1,10 @@
 """Platform-independent Apeiria domain primitives."""
 
 from .companion import (
+    COMPANION_CONTRACT,
+    DEFAULT_PERSONA_PROMPT,
     DEFAULT_TRIGGERS,
+    CompanionDecision,
     CompanionService,
     ContextEntry,
     LlmTransport,
@@ -10,13 +13,18 @@ from .companion import (
 )
 from .group_control import ControlDecision, GroupControlPolicy
 from .messages import IncomingMessage
-from .state_store import SQLiteStateStore, StateStore
+from .persona import build_persona_prompt
+from .state_store import EventSink, SQLiteStateStore, StateStore
 
 __all__ = [
+    "COMPANION_CONTRACT",
+    "CompanionDecision",
     "CompanionService",
     "ContextEntry",
     "ControlDecision",
+    "DEFAULT_PERSONA_PROMPT",
     "DEFAULT_TRIGGERS",
+    "EventSink",
     "GroupControlPolicy",
     "IncomingMessage",
     "LlmTransport",
@@ -24,4 +32,5 @@ __all__ = [
     "OpenAICompatibleTransport",
     "SQLiteStateStore",
     "StateStore",
+    "build_persona_prompt",
 ]

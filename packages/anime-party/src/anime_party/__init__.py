@@ -10,10 +10,13 @@ from .bangumi_api import (
 )
 from .catalog import QuestionCatalog, default_questions_path, load_questions
 from .engine import AnimePartyEngine, GameReply, ReplyKind
+from .expression import EXPRESSION_CONTRACT, AiGamePresenter
 from .models import Difficulty, Question
 from .presentation import ChineseGamePresenter
 
 __all__ = [
+    "EXPRESSION_CONTRACT",
+    "AiGamePresenter",
     "AnimePartyEngine",
     "BangumiClient",
     "BangumiHTTPError",

@@ -165,3 +165,32 @@ def test_active_game_survives_engine_restart(tmp_path: Path) -> None:
     assert first_hint.hint_level == 1
     assert second_hint.question == started.question
     assert second_hint.hint_level == 2
+
+
+def test_social_talk_during_active_round_is_not_an_answer() -> None:
+    engine = AnimePartyEngine(make_catalog(), random=Random(1))
+    engine.handle(make_message("1", "来一个"))
+
+    for message_id, text in [("2", "早"), ("3", "你好"), ("4", "哈哈，这题有点难"), ("5", "在吗")]:
+        reply = engine.handle(make_message(message_id, text))
+        assert reply.kind is ReplyKind.IGNORED, text
+
+    still_guessing = engine.handle(make_message("6", "命运之夜"))
+    assert still_guessing.kind is ReplyKind.WRONG_ANSWER
+
+
+def test_wrong_answer_lines_rotate_with_randomness() -> None:
+    from anime_party.presentation import WRONG_ANSWER_LINES
+
+    engine = AnimePartyEngine(make_catalog(), random=Random(1))
+    engine.handle(make_message("1", "来一个"))
+    presenter = ChineseGamePresenter(random=Random(7))
+
+    seen = {
+        presenter.render(engine.handle(make_message(str(index), "命运之夜")))[0]
+        for index in range(2, 7)
+    }
+
+    assert seen.issubset(set(WRONG_ANSWER_LINES))
+    assert len(seen) > 1
+    assert presenter.render(engine.handle(make_message("100", "命运之夜")))[0] in WRONG_ANSWER_LINES

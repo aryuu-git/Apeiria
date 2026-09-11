@@ -14,6 +14,11 @@
     "type": "list",
     "default": []
   },
+  "owner_ids": {
+    "description": "QQ user IDs Apeiria especially cares about; their messages always reach the AI",
+    "type": "list",
+    "default": []
+  },
   "recent_question_limit": {
     "description": "Number of recent questions excluded from selection",
     "type": "int",
@@ -24,13 +29,33 @@
     "type": "int",
     "default": 4096
   },
+  "persona_dir": {
+    "description": "Directory with SKILL.md and references/ persona assets; empty uses the built-in persona",
+    "type": "string",
+    "default": ""
+  },
+  "event_retention_days": {
+    "description": "Days to retain local lifecycle events shown in the WebUI",
+    "type": "int",
+    "default": 7
+  },
+  "round_timeout_minutes": {
+    "description": "Minutes before an active round auto-reveals its answer; 0 disables",
+    "type": "int",
+    "default": 15
+  },
   "ai_enabled": {
     "description": "Enable AI companion replies; requires endpoint, key and model",
     "type": "bool",
     "default": false
   },
+  "ai_expressions_enabled": {
+    "description": "Let the AI reword game replies (falls back to templates on failure)",
+    "type": "bool",
+    "default": true
+  },
   "ai_base_url": {
-    "description": "OpenAI-compatible base URL, e.g. https://ark.cn-beijing.volces.com/api/coding",
+    "description": "OpenAI-compatible base URL, e.g. https://ark.cn-beijing.volces.com/api/coding/v3",
     "type": "string",
     "default": ""
   },
@@ -58,5 +83,15 @@
     "description": "Maximum archived messages sent to the AI as context",
     "type": "int",
     "default": 20
+  },
+  "ai_autonomous_rate_limit": {
+    "description": "Max autonomous companion messages per group per window; @-mentions are exempt",
+    "type": "int",
+    "default": 5
+  },
+  "ai_rate_window_minutes": {
+    "description": "Rate limit window in minutes",
+    "type": "int",
+    "default": 10
   }
 }
