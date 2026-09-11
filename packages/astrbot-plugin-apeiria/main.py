@@ -31,7 +31,16 @@ class ApeiriaPlugin(star.Star):
             recent_limit=int(settings.get("recent_question_limit", 8)),
             handled_message_limit=int(settings.get("handled_message_limit", 4096)),
         )
-        self._adapter = ApeiriaEventAdapter(engine, ChineseGamePresenter())
+        allowed_group_ids = {
+            str(group_id).strip()
+            for group_id in settings.get("allowed_group_ids", [])
+            if str(group_id).strip()
+        }
+        self._adapter = ApeiriaEventAdapter(
+            engine,
+            ChineseGamePresenter(),
+            allowed_group_ids=allowed_group_ids,
+        )
 
     @filter.event_message_type(filter.EventMessageType.ALL, priority=10)
     async def on_message(self, event: AstrMessageEvent):

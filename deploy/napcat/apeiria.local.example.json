@@ -1,0 +1,17 @@
+{
+  "qq_account_id": "REPLACE_WITH_TEST_QQ",
+  "allowed_group_ids": [
+    "REPLACE_WITH_TEST_GROUP"
+  ],
+  "admin_ids": [
+    "REPLACE_WITH_ADMIN_QQ"
+  ],
+  "astrbot": {
+    "dashboard_url": "http://127.0.0.1:6185",
+    "onebot_reverse_ws_host": "127.0.0.1",
+    "onebot_reverse_ws_port": 6199
+  },
+  "napcat": {
+    "reverse_ws_url": "ws://127.0.0.1:6199/ws"
+  }
+}

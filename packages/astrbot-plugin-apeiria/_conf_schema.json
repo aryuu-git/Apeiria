@@ -4,6 +4,11 @@
     "type": "bool",
     "default": true
   },
+  "allowed_group_ids": {
+    "description": "QQ group IDs allowed to use Apeiria; empty denies every group",
+    "type": "list",
+    "default": []
+  },
   "recent_question_limit": {
     "description": "Number of recent questions excluded from selection",
     "type": "int",

@@ -1,0 +1,17 @@
+{
+  "qq_account_id": "100001",
+  "allowed_group_ids": [
+    "200001"
+  ],
+  "admin_ids": [
+    "300001"
+  ],
+  "astrbot": {
+    "dashboard_url": "http://127.0.0.1:6185",
+    "onebot_reverse_ws_host": "127.0.0.1",
+    "onebot_reverse_ws_port": 6199
+  },
+  "napcat": {
+    "reverse_ws_url": "ws://127.0.0.1:6199/ws"
+  }
+}
