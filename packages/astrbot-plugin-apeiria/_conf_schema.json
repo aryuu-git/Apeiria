@@ -23,5 +23,40 @@
     "description": "Maximum number of message IDs retained for deduplication",
     "type": "int",
     "default": 4096
+  },
+  "ai_enabled": {
+    "description": "Enable AI companion replies; requires endpoint, key and model",
+    "type": "bool",
+    "default": false
+  },
+  "ai_base_url": {
+    "description": "OpenAI-compatible base URL, e.g. https://ark.cn-beijing.volces.com/api/coding",
+    "type": "string",
+    "default": ""
+  },
+  "ai_api_key": {
+    "description": "API key for the AI provider; never commit or log this value",
+    "type": "string",
+    "default": ""
+  },
+  "ai_model": {
+    "description": "Model name, e.g. deepseek-v4-flash",
+    "type": "string",
+    "default": ""
+  },
+  "ai_system_prompt": {
+    "description": "Persona system prompt; empty uses the built-in Apeiria prompt",
+    "type": "string",
+    "default": ""
+  },
+  "ai_history_retention_days": {
+    "description": "Days to retain local companion context history",
+    "type": "int",
+    "default": 30
+  },
+  "ai_prompt_context_limit": {
+    "description": "Maximum archived messages sent to the AI as context",
+    "type": "int",
+    "default": 20
   }
 }
