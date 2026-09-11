@@ -1,0 +1,28 @@
+[
+  {
+    "name": "开始、提示、错误答案与揭晓",
+    "steps": [
+      {"message_id": "1", "text": "来一个", "kind": "question", "contains": "猜猜这部动画"},
+      {"message_id": "2", "text": "提示", "kind": "hint", "contains": "提示 1/3"},
+      {"message_id": "3", "text": "肯定不是答案", "kind": "wrong_answer", "contains": "还不对"},
+      {"message_id": "4", "text": "公布答案", "kind": "revealed", "contains": "答案是"},
+      {"message_id": "5", "text": "普通群聊", "kind": "ignored", "contains": null}
+    ]
+  },
+  {
+    "name": "切换难度后暂停",
+    "steps": [
+      {"message_id": "1", "text": "简单点", "kind": "difficulty_changed", "contains": "简单难度"},
+      {"message_id": "2", "text": "暂停", "kind": "paused", "contains": "游戏已暂停"},
+      {"message_id": "3", "text": "提示", "kind": "no_active_question", "contains": "没有进行中的题目"}
+    ]
+  },
+  {
+    "name": "重复投递不重复回复",
+    "steps": [
+      {"message_id": "same", "text": "来一个", "kind": "question", "contains": "猜猜这部动画"},
+      {"message_id": "same", "text": "来一个", "kind": "ignored", "contains": null, "duplicate": true}
+    ]
+  }
+]
+
