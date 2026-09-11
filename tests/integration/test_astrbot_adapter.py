@@ -98,6 +98,7 @@ def test_adapter_applies_admin_silence_before_game() -> None:
     game_after_resume = FakeAstrEvent("4", "来一个")
 
     assert adapter.handle(silence)[0].startswith("好的")
+    assert adapter.handle(silence) == ()
     assert adapter.handle(game) == ()
     assert adapter.handle(resume) == ("我回来了。",)
     assert adapter.handle(game_after_resume)[0].startswith("猜猜这部动画：")

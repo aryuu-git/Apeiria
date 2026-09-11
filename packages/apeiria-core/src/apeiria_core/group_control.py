@@ -20,12 +20,24 @@ class GroupControlPolicy:
     SILENCE_COMMANDS = frozenset({"艾佩理雅静默", "机器人静默"})
     RESUME_COMMANDS = frozenset({"艾佩理雅恢复", "机器人恢复"})
 
-    def __init__(self, admin_ids: Collection[str]) -> None:
+    def __init__(self, admin_ids: Collection[str], *, handled_message_limit: int = 4096) -> None:
+        if handled_message_limit < 1:
+            raise ValueError("handled_message_limit must be positive")
         self._admin_ids = frozenset(admin_ids)
         self._silent_sessions: set[str] = set()
+        self._handled_message_limit = handled_message_limit
+        self._handled_messages: dict[tuple[str, str], None] = {}
 
     def evaluate(self, message: IncomingMessage) -> ControlDecision:
         """Evaluate one normalized message before other domain handlers."""
+
+        identity = (message.session_id, message.message_id)
+        if identity in self._handled_messages:
+            return ControlDecision(False)
+        self._handled_messages[identity] = None
+        if len(self._handled_messages) > self._handled_message_limit:
+            oldest = next(iter(self._handled_messages))
+            del self._handled_messages[oldest]
 
         text = message.text.strip()
         is_admin = message.sender_id in self._admin_ids

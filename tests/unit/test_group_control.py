@@ -35,3 +35,17 @@ def test_non_admin_cannot_change_silence_state() -> None:
     assert denied.allow is False
     assert denied.response == "只有管理员可以让我进入静默。"
     assert ordinary.allow is True
+
+
+def test_control_messages_are_deduplicated_with_bounded_memory() -> None:
+    policy = GroupControlPolicy({"admin"}, handled_message_limit=2)
+
+    first = policy.evaluate(message("1", "admin", "艾佩理雅静默"))
+    duplicate = policy.evaluate(message("1", "admin", "艾佩理雅静默"))
+    policy.evaluate(message("2", "admin", "艾佩理雅恢复"))
+    policy.evaluate(message("3", "member", "普通聊天"))
+    replay_after_eviction = policy.evaluate(message("1", "admin", "艾佩理雅静默"))
+
+    assert first.response is not None
+    assert duplicate.allow is False and duplicate.response is None
+    assert replay_after_eviction.response is not None

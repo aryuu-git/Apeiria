@@ -46,7 +46,10 @@ class ApeiriaPlugin(star.Star):
             engine,
             ChineseGamePresenter(),
             allowed_group_ids=allowed_group_ids,
-            group_control=GroupControlPolicy(admin_ids),
+            group_control=GroupControlPolicy(
+                admin_ids,
+                handled_message_limit=int(settings.get("handled_message_limit", 4096)),
+            ),
         )
 
     @filter.event_message_type(filter.EventMessageType.ALL, priority=10)
