@@ -30,6 +30,7 @@
 - Apeiria 的两个领域包均能构建为 wheel；动画题包包含在 `anime-party` wheel 中。
 - 插件元数据和 `_conf_schema.json` 可被 AstrBot 解析；真实启动时成功加载 `astrbot_plugin_apeiria 0.1.0`。
 - 插件通过公开事件接口调用领域核心；假事件覆盖已处理与忽略消息，根项目共 13 项测试通过。
+- 真实 `AstrMessageEvent` 契约验证覆盖消息 ID、发送者、群 ID、UMO 和 `stop_event()`；可由 `deploy/windows/Test-AstrBotContract.ps1` 重跑。
 - WebUI 验证时只监听 `127.0.0.1:6185`，服务随后正常关停；没有连接 QQ 或配置 AI。
 - 未修改 AstrBot 核心，因此当前不建立 fork。
 
