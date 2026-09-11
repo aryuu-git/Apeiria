@@ -1,0 +1,273 @@
+[
+  {
+    "subject_id": 10380,
+    "title": "命运石之门",
+    "aliases": ["STEINS;GATE", "Steins Gate", "石头门"],
+    "emoji": "⌚🍌📱⚡",
+    "difficulty": "easy",
+    "hints": ["故事与时间旅行有关。", "主要舞台是秋叶原的一间实验室。", "关键装置被称为“电话微波炉”。"],
+    "explanation": "一群实验室成员意外发现了向过去发送信息的方法。"
+  },
+  {
+    "subject_id": 328609,
+    "title": "孤独摇滚！",
+    "aliases": ["ぼっち・ざ・ろっく！", "Bocchi the Rock!", "孤独摇滚", "波奇酱"],
+    "emoji": "🎸🩷📦🎤",
+    "difficulty": "easy",
+    "hints": ["主角非常不擅长社交。", "故事围绕一支女子乐队展开。", "主角后藤一里常被叫作“波奇酱”。"],
+    "explanation": "社恐吉他手后藤一里加入纽带乐队后的青春故事。"
+  },
+  {
+    "subject_id": 400602,
+    "title": "葬送的芙莉莲",
+    "aliases": ["葬送のフリーレン", "Frieren", "芙莉莲"],
+    "emoji": "🧝‍♀️⏳🪄💍",
+    "difficulty": "easy",
+    "hints": ["主角拥有远超人类的寿命。", "故事从勇者小队讨伐魔王之后开始。", "精灵魔法使重新踏上理解人类的旅程。"],
+    "explanation": "长寿精灵芙莉莲在告别旧友后，开始学习理解短暂的人类生命。"
+  },
+  {
+    "subject_id": 9717,
+    "title": "魔法少女小圆",
+    "aliases": ["魔法少女まどか☆マギカ", "Puella Magi Madoka Magica", "小圆"],
+    "emoji": "🎀🏹🐾⌛",
+    "difficulty": "easy",
+    "hints": ["愿望伴随着代价。", "一只白色生物邀请少女签订契约。", "晓美焰不断重复同一段时间。"],
+    "explanation": "少女们的愿望、契约与命运构成了一场残酷循环。"
+  },
+  {
+    "subject_id": 27364,
+    "title": "冰菓",
+    "aliases": ["氷菓", "Hyouka"],
+    "emoji": "🍨🏫🔍🌹",
+    "difficulty": "easy",
+    "hints": ["故事发生在高中社团。", "主角信奉节能主义。", "“我很好奇”总会开启新的日常谜题。"],
+    "explanation": "古典部成员从校园日常中解开一个个细小谜团。"
+  },
+  {
+    "subject_id": 265,
+    "title": "新世纪福音战士",
+    "aliases": ["新世紀エヴァンゲリオン", "Neon Genesis Evangelion", "EVA"],
+    "emoji": "🤖👼🟣🔌",
+    "difficulty": "easy",
+    "hints": ["少年少女驾驶巨大人形兵器战斗。", "敌人被称为使徒。", "碇真嗣驾驶初号机。"],
+    "explanation": "少年驾驶 EVA 对抗使徒，也不得不面对人与人之间的隔阂。"
+  },
+  {
+    "subject_id": 55770,
+    "title": "进击的巨人",
+    "aliases": ["進撃の巨人", "Attack on Titan", "巨人"],
+    "emoji": "🧱👹⚔️🪽",
+    "difficulty": "easy",
+    "hints": ["人类生活在高墙之内。", "士兵使用立体机动装置战斗。", "主角是艾伦、三笠与阿尔敏。"],
+    "explanation": "高墙被打破后，少年们加入军队探索巨人与世界的真相。"
+  },
+  {
+    "subject_id": 1424,
+    "title": "轻音少女",
+    "aliases": ["けいおん！", "K-ON!", "轻音"],
+    "emoji": "🎸🍰☕🏫",
+    "difficulty": "easy",
+    "hints": ["故事发生在女子高中。", "社团活动常常从下午茶开始。", "平泽唯加入了轻音部。"],
+    "explanation": "轻音部少女们在音乐、点心与校园生活中共同成长。"
+  },
+  {
+    "subject_id": 160209,
+    "title": "你的名字。",
+    "aliases": ["君の名は。", "Your Name", "你的名字"],
+    "emoji": "☄️🧵🔄🏙️",
+    "difficulty": "easy",
+    "hints": ["两位主角生活在不同地方。", "他们会在睡梦中交换身体。", "彗星与小镇灾难是故事关键。"],
+    "explanation": "少年与少女跨越时间和距离，寻找彼此留下的名字。"
+  },
+  {
+    "subject_id": 1773,
+    "title": "死亡笔记",
+    "aliases": ["DEATH NOTE", "Death Note", "死亡笔记本"],
+    "emoji": "📓🍎💀✍️",
+    "difficulty": "easy",
+    "hints": ["写下名字会带来死亡。", "死神喜欢吃苹果。", "夜神月与 L 展开智力对决。"],
+    "explanation": "得到死亡笔记的夜神月试图建立新世界，并与侦探 L 对抗。"
+  },
+  {
+    "subject_id": 23686,
+    "title": "刀剑神域",
+    "aliases": ["ソードアート・オンライン", "Sword Art Online", "SAO"],
+    "emoji": "🎮🗡️🗼❤️",
+    "difficulty": "easy",
+    "hints": ["玩家被困在虚拟现实游戏中。", "游戏内死亡意味着现实死亡。", "黑衣剑士桐人与亚丝娜并肩战斗。"],
+    "explanation": "玩家必须攻略艾恩葛朗特，才能从死亡游戏中返回现实。"
+  },
+  {
+    "subject_id": 311,
+    "title": "千与千寻",
+    "aliases": ["千と千尋の神隠し", "Spirited Away", "神隐少女"],
+    "emoji": "🐷♨️👻🐉",
+    "difficulty": "easy",
+    "hints": ["少女误入神灵居住的世界。", "父母因为贪吃变成了猪。", "千寻在汤屋工作并结识白龙。"],
+    "explanation": "千寻必须保住自己的名字，并设法救回变成猪的父母。"
+  },
+  {
+    "subject_id": 10639,
+    "title": "Fate/Zero",
+    "aliases": ["フェイトゼロ", "命运零", "FZ"],
+    "emoji": "🏆⚔️👑🔫",
+    "difficulty": "normal",
+    "hints": ["七组参与者争夺能实现愿望的器物。", "故事是另一场圣杯战争的前传。", "卫宫切嗣召唤了 Saber。"],
+    "explanation": "第四次圣杯战争中，魔术师与英灵围绕各自理想展开厮杀。"
+  },
+  {
+    "subject_id": 9912,
+    "title": "日常",
+    "aliases": ["日常", "Nichijou", "My Ordinary Life"],
+    "emoji": "🏫🤖🦈💥",
+    "difficulty": "normal",
+    "hints": ["标题很普通，演出却经常极其夸张。", "一名机器人少女想隐藏背后的发条。", "博士、阪本先生与东云名乃住在一起。"],
+    "explanation": "校园与东云研究所的平凡小事，被演绎成超规格的喜剧。"
+  },
+  {
+    "subject_id": 909,
+    "title": "龙与虎",
+    "aliases": ["とらドラ！", "Toradora!", "龙虎斗"],
+    "emoji": "🐯🐉🏫💌",
+    "difficulty": "normal",
+    "hints": ["标题来自两位主角的外号。", "两人最初决定互相帮助追求喜欢的人。", "逢坂大河被称为掌中老虎。"],
+    "explanation": "外表凶恶的龙儿与娇小强势的大河，从恋爱同盟逐渐走近彼此。"
+  },
+  {
+    "subject_id": 1428,
+    "title": "钢之炼金术师 FULLMETAL ALCHEMIST",
+    "aliases": ["鋼の錬金術師 FULLMETAL ALCHEMIST", "Fullmetal Alchemist: Brotherhood", "钢之炼金术师FA", "钢炼FA"],
+    "emoji": "⚙️🔥🦾⭕",
+    "difficulty": "normal",
+    "hints": ["世界遵循炼金术的等价交换。", "兄弟二人为恢复身体踏上旅途。", "爱德华拥有机械铠，阿尔冯斯的灵魂附在铠甲上。"],
+    "explanation": "艾尔利克兄弟追寻贤者之石，并揭开国家炼成阵的阴谋。"
+  },
+  {
+    "subject_id": 79227,
+    "title": "游戏人生",
+    "aliases": ["ノーゲーム・ノーライフ", "No Game No Life", "NGNL"],
+    "emoji": "🎮♟️🌈0️⃣",
+    "difficulty": "normal",
+    "hints": ["一切争端都通过游戏解决。", "空与白是从未败北的玩家组合。", "兄妹被游戏之神召唤到异世界。"],
+    "explanation": "“空白”兄妹用游戏挑战由十条盟约约束的异世界。"
+  },
+  {
+    "subject_id": 135275,
+    "title": "为美好的世界献上祝福！",
+    "aliases": ["この素晴らしい世界に祝福を！", "KONOSUBA", "素晴", "美好世界"],
+    "emoji": "💥💧🗡️🎭",
+    "difficulty": "normal",
+    "hints": ["这是一部异世界喜剧。", "队伍成员能力突出，问题也同样突出。", "和真带着女神阿库娅转生。"],
+    "explanation": "和真与阿库娅、惠惠、达克妮斯组成了麻烦不断的冒险小队。"
+  },
+  {
+    "subject_id": 2585,
+    "title": "某科学的超电磁炮",
+    "aliases": ["とある科学の超電磁砲", "A Certain Scientific Railgun", "超电磁炮", "炮姐"],
+    "emoji": "🪙⚡🏙️🧪",
+    "difficulty": "normal",
+    "hints": ["故事发生在学园都市。", "主角是等级 5 的电击能力者。", "御坂美琴会用硬币发射超电磁炮。"],
+    "explanation": "御坂美琴与伙伴们面对学园都市中的能力者事件。"
+  },
+  {
+    "subject_id": 183878,
+    "title": "紫罗兰永恒花园",
+    "aliases": ["ヴァイオレット・エヴァーガーデン", "Violet Evergarden", "薇尔莉特永恒花园"],
+    "emoji": "✉️🦾🌸💙",
+    "difficulty": "normal",
+    "hints": ["主角在战后学习理解感情。", "她以自动手记人偶的身份代写书信。", "薇尔莉特想理解“我爱你”的含义。"],
+    "explanation": "曾经的少女士兵通过替人写信，逐渐理解语言与感情。"
+  },
+  {
+    "subject_id": 329906,
+    "title": "间谍过家家",
+    "aliases": ["SPY×FAMILY", "Spy x Family", "间谍家家酒"],
+    "emoji": "🕵️‍♂️🔪🧠🐶",
+    "difficulty": "normal",
+    "hints": ["一家三口各自隐藏秘密。", "父亲是间谍，母亲是杀手。", "女儿阿尼亚能够读心。"],
+    "explanation": "为了任务组成的临时家庭，在彼此隐瞒身份时渐渐成为真正的家人。"
+  },
+  {
+    "subject_id": 245665,
+    "title": "鬼灭之刃",
+    "aliases": ["鬼滅の刃", "Demon Slayer", "鬼灭"],
+    "emoji": "👹⚔️🎋🌊",
+    "difficulty": "normal",
+    "hints": ["少年为了变回人类的妹妹而战。", "剑士们使用不同流派的呼吸法。", "炭治郎背着装有祢豆子的箱子。"],
+    "explanation": "炭治郎加入鬼杀队，寻找让妹妹祢豆子恢复的方法。"
+  },
+  {
+    "subject_id": 793,
+    "title": "Code Geass 反叛的鲁路修",
+    "aliases": ["コードギアス 反逆のルルーシュ", "Code Geass", "反叛的鲁路修", "鲁路修"],
+    "emoji": "👁️♟️🤖👑",
+    "difficulty": "normal",
+    "hints": ["主角以假面身份发动反抗。", "特殊力量能够对他人下达一次绝对命令。", "鲁路修化身 Zero 对抗不列颠帝国。"],
+    "explanation": "获得 Geass 的鲁路修以棋局般的谋略挑战帝国。"
+  },
+  {
+    "subject_id": 386809,
+    "title": "【我推的孩子】",
+    "aliases": ["【推しの子】", "Oshi no Ko", "我推的孩子"],
+    "emoji": "⭐👁️🎤👶",
+    "difficulty": "normal",
+    "hints": ["故事展现演艺圈的光与影。", "双胞胎带着前世记忆出生。", "他们的母亲是偶像星野爱。"],
+    "explanation": "阿库亚与露比以特殊身份踏入演艺圈，追寻梦想与真相。"
+  },
+  {
+    "subject_id": 110467,
+    "title": "白箱",
+    "aliases": ["SHIROBAKO", "Shirobako"],
+    "emoji": "📺✏️🚗🍩",
+    "difficulty": "hard",
+    "hints": ["故事关注作品制作的幕后流程。", "主角在动画公司担任制作进行。", "宫森葵开车奔波协调《Exodus!》的制作。"],
+    "explanation": "五位朋友以动画行业为目标，经历制作现场的忙乱与成长。"
+  },
+  {
+    "subject_id": 1671,
+    "title": "化物语",
+    "aliases": ["化物語", "Bakemonogatari", "物语系列"],
+    "emoji": "🦀🐌🐒🐍🐈",
+    "difficulty": "hard",
+    "hints": ["不同篇章对应不同怪异。", "作品以大量独特对白和文字演出著称。", "阿良良木历帮助战场原黑仪等少女解决怪异问题。"],
+    "explanation": "遭遇吸血鬼后的少年，与背负各种怪异的少女们相遇。"
+  },
+  {
+    "subject_id": 253,
+    "title": "星际牛仔",
+    "aliases": ["カウボーイビバップ", "Cowboy Bebop", "宇宙牛仔"],
+    "emoji": "🚀🤠🎷🐕",
+    "difficulty": "hard",
+    "hints": ["太空旅行与爵士乐构成作品气质。", "主角一行靠追捕悬赏犯维生。", "史派克乘坐 Bebop 号漂泊。"],
+    "explanation": "一群各有过去的赏金猎人在太阳系中追逐目标与往事。"
+  },
+  {
+    "subject_id": 325285,
+    "title": "奇巧计程车",
+    "aliases": ["オッドタクシー", "ODDTAXI", "Odd Taxi"],
+    "emoji": "🚕🦭📻🕵️",
+    "difficulty": "hard",
+    "hints": ["司机与乘客的闲谈逐渐连成谜团。", "登场人物都以动物形象出现。", "海象司机小户川卷入少女失踪案。"],
+    "explanation": "看似普通的出租车对话，逐步汇入一宗复杂案件。"
+  },
+  {
+    "subject_id": 431767,
+    "title": "少女乐队的呐喊",
+    "aliases": ["ガールズバンドクライ", "Girls Band Cry", "GBC"],
+    "emoji": "🎸🖕💎🚃",
+    "difficulty": "hard",
+    "hints": ["主角离开家乡来到川崎。", "五名少女组成乐队表达不甘。", "井芹仁菜与河原木桃香组建无刺有刺。"],
+    "explanation": "带着各自伤痛的少女，用乐队和歌声对世界发出呐喊。"
+  },
+  {
+    "subject_id": 218708,
+    "title": "比宇宙更远的地方",
+    "aliases": ["宇宙よりも遠い場所", "A Place Further than the Universe", "南极"],
+    "emoji": "🐧🧊🚢👭",
+    "difficulty": "hard",
+    "hints": ["标题中的远方位于地球上。", "四名少女加入民间观测队。", "她们共同前往南极。"],
+    "explanation": "四位少女跨越犹豫与困难，踏上前往南极的青春旅程。"
+  }
+]
+
