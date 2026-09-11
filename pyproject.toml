@@ -1,0 +1,46 @@
+[project]
+name = "apeiria-workspace"
+version = "0.1.0"
+description = "Apeiria domain core and anime party game"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "mypy>=1.18,<2",
+    "pytest>=8.4,<9",
+    "ruff>=0.13,<0.14",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+pythonpath = [
+    "packages/apeiria-core/src",
+    "packages/anime-party/src",
+]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = [
+    "packages/apeiria-core/src",
+    "packages/anime-party/src",
+    "tests",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = [
+    "packages/apeiria-core/src",
+    "packages/anime-party/src",
+]
+packages = ["apeiria_core", "anime_party"]
+
