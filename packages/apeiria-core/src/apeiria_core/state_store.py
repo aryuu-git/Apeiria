@@ -1,6 +1,7 @@
 """Small persistent state abstraction and SQLite implementation."""
 
 import sqlite3
+from contextlib import closing
 from pathlib import Path
 from typing import Protocol
 
@@ -35,7 +36,7 @@ class SQLiteStateStore:
         return connection
 
     def _migrate(self) -> None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection, connection:
             connection.execute(
                 "CREATE TABLE IF NOT EXISTS schema_migrations "
                 "(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"
@@ -55,7 +56,7 @@ class SQLiteStateStore:
                 connection.execute("INSERT INTO schema_migrations(version) VALUES (1)")
 
     def get(self, namespace: str, key: str) -> str | None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection, connection:
             row = connection.execute(
                 "SELECT value FROM state WHERE namespace = ? AND key = ?",
                 (namespace, key),
@@ -63,7 +64,7 @@ class SQLiteStateStore:
         return None if row is None else str(row[0])
 
     def set(self, namespace: str, key: str, value: str) -> None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection, connection:
             connection.execute(
                 "INSERT INTO state(namespace, key, value) VALUES (?, ?, ?) "
                 "ON CONFLICT(namespace, key) DO UPDATE SET "
@@ -72,7 +73,7 @@ class SQLiteStateStore:
             )
 
     def delete(self, namespace: str, key: str) -> None:
-        with self._connect() as connection:
+        with closing(self._connect()) as connection, connection:
             connection.execute(
                 "DELETE FROM state WHERE namespace = ? AND key = ?",
                 (namespace, key),
