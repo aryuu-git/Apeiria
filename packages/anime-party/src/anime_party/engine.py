@@ -16,6 +16,19 @@ class GameStatus(StrEnum):
     PAUSED = "paused"
 
 
+class ReplyKind(StrEnum):
+    IGNORED = "ignored"
+    QUESTION = "question"
+    DIFFICULTY_CHANGED = "difficulty_changed"
+    PAUSED = "paused"
+    NO_ACTIVE_QUESTION = "no_active_question"
+    HINT = "hint"
+    HINTS_EXHAUSTED = "hints_exhausted"
+    REVEALED = "revealed"
+    WRONG_ANSWER = "wrong_answer"
+    CORRECT_ANSWER = "correct_answer"
+
+
 @dataclass(slots=True)
 class GameSession:
     status: GameStatus = GameStatus.IDLE
@@ -27,8 +40,12 @@ class GameSession:
 
 @dataclass(frozen=True, slots=True)
 class GameReply:
-    messages: tuple[str, ...]
+    kind: ReplyKind
     duplicate: bool = False
+    question: Question | None = None
+    difficulty: Difficulty | None = None
+    hint_level: int | None = None
+    hint: str | None = None
 
 
 class AnimePartyEngine:
@@ -62,7 +79,7 @@ class AnimePartyEngine:
     def handle(self, message: IncomingMessage) -> GameReply:
         identity = (message.session_id, message.message_id)
         if identity in self._handled_messages:
-            return GameReply(messages=(), duplicate=True)
+            return GameReply(kind=ReplyKind.IGNORED, duplicate=True)
         self._handled_messages[identity] = None
         if len(self._handled_messages) > self._handled_message_limit:
             oldest = next(iter(self._handled_messages))
@@ -75,13 +92,13 @@ class AnimePartyEngine:
             session.status = GameStatus.PAUSED
             session.current = None
             session.hint_level = 0
-            return GameReply(("游戏已暂停。想继续时，对我说“来一个”。",))
+            return GameReply(kind=ReplyKind.PAUSED)
         if text in self.EASY_COMMANDS:
             session.difficulty = Difficulty.EASY
-            return self._start_question(session, prefix="已切换为简单难度。")
+            return self._start_question(session, changed_difficulty=Difficulty.EASY)
         if text in self.HARD_COMMANDS:
             session.difficulty = Difficulty.HARD
-            return self._start_question(session, prefix="已切换为困难难度。")
+            return self._start_question(session, changed_difficulty=Difficulty.HARD)
         if text in self.START_COMMANDS or text in self.NEXT_COMMANDS:
             return self._start_question(session)
         if text in self.HINT_COMMANDS:
@@ -90,7 +107,12 @@ class AnimePartyEngine:
             return self._reveal(session)
         return self._answer(session, text)
 
-    def _start_question(self, session: GameSession, *, prefix: str | None = None) -> GameReply:
+    def _start_question(
+        self,
+        session: GameSession,
+        *,
+        changed_difficulty: Difficulty | None = None,
+    ) -> GameReply:
         question = self._catalog.choose(
             difficulty=session.difficulty,
             excluded_subject_ids=set(session.recent_subject_ids),
@@ -104,36 +126,46 @@ class AnimePartyEngine:
             session.recent_subject_ids.clear()
         else:
             del session.recent_subject_ids[: -self._recent_limit]
-        messages = [f"猜猜这部动画：{question.emoji}"]
-        if prefix:
-            messages.insert(0, prefix)
-        return GameReply(tuple(messages))
+        return GameReply(
+            kind=(
+                ReplyKind.DIFFICULTY_CHANGED
+                if changed_difficulty is not None
+                else ReplyKind.QUESTION
+            ),
+            question=question,
+            difficulty=changed_difficulty,
+        )
 
     def _hint(self, session: GameSession) -> GameReply:
         if session.status is not GameStatus.ACTIVE or session.current is None:
-            return GameReply(("现在没有进行中的题目。对我说“来一个”吧。",))
+            return GameReply(kind=ReplyKind.NO_ACTIVE_QUESTION)
         if session.hint_level >= 3:
-            return GameReply(("三层提示已经全部给出。可以继续猜，或说“公布答案”。",))
+            return GameReply(kind=ReplyKind.HINTS_EXHAUSTED, question=session.current)
         session.hint_level += 1
         hint = session.current.hints[session.hint_level - 1]
-        return GameReply((f"提示 {session.hint_level}/3：{hint}",))
+        return GameReply(
+            kind=ReplyKind.HINT,
+            question=session.current,
+            hint_level=session.hint_level,
+            hint=hint,
+        )
 
     def _reveal(self, session: GameSession) -> GameReply:
         if session.status is not GameStatus.ACTIVE or session.current is None:
-            return GameReply(("现在没有可以公布的题目。",))
+            return GameReply(kind=ReplyKind.NO_ACTIVE_QUESTION)
         question = session.current
         session.status = GameStatus.IDLE
         session.current = None
         session.hint_level = 0
-        return GameReply((f"答案是《{question.title}》。{question.explanation}",))
+        return GameReply(kind=ReplyKind.REVEALED, question=question)
 
     def _answer(self, session: GameSession, text: str) -> GameReply:
         if session.status is not GameStatus.ACTIVE or session.current is None:
-            return GameReply(())
+            return GameReply(kind=ReplyKind.IGNORED)
         if not session.current.accepts(text):
-            return GameReply(("还不对。可以继续猜，或者说“提示”。",))
+            return GameReply(kind=ReplyKind.WRONG_ANSWER, question=session.current)
         question = session.current
         session.status = GameStatus.IDLE
         session.current = None
         session.hint_level = 0
-        return GameReply((f"答对了，是《{question.title}》！{question.explanation}",))
+        return GameReply(kind=ReplyKind.CORRECT_ANSWER, question=question)
